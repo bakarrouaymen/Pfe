@@ -1,0 +1,250 @@
+/* Variables communes */
+:root {
+    --bp-orange: #F16E00;
+    --bp-orange-dark: #D95B00;
+    --bp-dark-brown: #3A241C;
+    --text-color: #333;
+    --text-muted: #6c757d;
+    --bg-light: #f8f9fa;
+    --bg-white: #ffffff;
+    --border-color: #dee2e6;
+    --font-primary: 'Nunito', sans-serif;
+    --spacing-xs: 8px;
+    --spacing-sm: 12px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --border-radius: 8px;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+    --transition-normal: all 0.3s ease;
+}
+
+/* Styles du tableau de bord */
+.dashboard-section {
+    padding: var(--spacing-lg);
+}
+
+.dashboard-header {
+    margin-bottom: var(--spacing-xl);
+}
+
+.dashboard-header h2 {
+    color: var(--bp-dark-brown);
+    font-size: 1.8em;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.dashboard-header h2 i {
+    color: var(--bp-orange);
+}
+
+.dashboard-header p {
+    color: var(--text-muted);
+    font-size: 1em;
+}
+
+/* Grille des widgets statistiques */
+.stats-widgets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.widget {
+    background-color: var(--bg-white);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-normal);
+}
+
+.widget:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.widget-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(241, 110, 0, 0.1);
+    border-radius: 50%;
+    color: var(--bp-orange);
+    font-size: 1.5em;
+}
+
+.widget-content {
+    flex: 1;
+}
+
+.widget-content h3 {
+    color: var(--text-muted);
+    font-size: 0.9em;
+    font-weight: 600;
+    margin-bottom: var(--spacing-xs);
+}
+
+.widget-content p {
+    color: var(--bp-dark-brown);
+    font-size: 1.8em;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Conteneur de graphique */
+.chart-container {
+    background-color: var(--bg-white);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--spacing-xl);
+}
+
+.chart-container h3 {
+    color: var(--text-muted);
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+}
+
+.chart-placeholder {
+    min-height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Tableau des données récentes */
+.recent-data {
+    background-color: var(--bg-white);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.recent-data h3 {
+    color: var(--bp-dark-brown);
+    font-size: 1.2em;
+    font-weight: 600;
+    margin-bottom: var(--spacing-lg);
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+th, td {
+    padding: var(--spacing-md);
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    background-color: var(--bg-light);
+    font-weight: 600;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+tbody tr:hover {
+    background-color: var(--bg-light);
+}
+
+/* Statuts */
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: 15px;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+
+.status i {
+    font-size: 0.9em;
+}
+
+.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-approved {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-rejected {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status-returned {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+/* Boutons d'action */
+.action-button {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    font-size: 1.1em;
+    transition: var(--transition-normal);
+    margin: 0 2px;
+}
+
+.action-button:hover {
+    color: var(--bp-orange);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .stats-widgets-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .widget {
+        padding: var(--spacing-md);
+    }
+
+    .chart-container,
+    .recent-data {
+        padding: var(--spacing-md);
+    }
+
+    th, td {
+        padding: var(--spacing-sm);
+    }
+}
