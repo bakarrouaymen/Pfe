@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const demandsDateFilter = document.querySelector('#demandes-en-cours .date-filter');
     const notificationBell = document.querySelector('.notification-bell');
     const notificationBadge = document.querySelector('.notification-badge');
-
+    const recentDemandsTableBody = document.querySelector('#recent-demands-table-body');
     // Modal pour les détails
     const demandDetailsModal = document.getElementById('demandDetailsModal');
 
@@ -606,6 +606,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // --- Gestion du formulaire de demande (CRÉATION ET MISE À JOUR) ---
+    // Dans agence.js
+
     function setupRequestForm() {
         if (!requestForm || !requestFormTitleElement || !demandeIdHiddenInput) {
             console.error("Éléments clés du formulaire (requestForm, requestFormTitleElement, ou demandeIdHiddenInput) manquants.");
@@ -615,12 +617,111 @@ document.addEventListener('DOMContentLoaded', function() {
         const itemsContainer = requestForm.querySelector('.items-container');
         const fileUpload = requestForm.querySelector('#fileUpload');
         const fileListDisplay = requestForm.querySelector('.file-list');
+        let uploadedFiles = []; // Pour garder en mémoire les fichiers sélectionnés
 
-        if (addItemBtn) addItemBtn.addEventListener('click', () => { /* ... code ajouter article ... */ });
-        if (itemsContainer) itemsContainer.addEventListener('click', (e) => { /* ... code supprimer article ... */ });
-        if (fileUpload) fileUpload.addEventListener('change', (e) => { /* ... code afficher fichiers ... */ });
+        if (addItemBtn) {
+            addItemBtn.addEventListener('click', () => {
+                const itemRow = document.createElement('div');
+                itemRow.className = 'item-row';
+                itemRow.innerHTML = `
+                    <input type="text" class="item-name" placeholder="Nom de l'article" required>
+                    <input type="number" class="item-quantity" placeholder="Qté" min="1" value="1" required>
+                    <input type="text" class="item-specs" placeholder="Spécifications (optionnel)">
+                    <button type="button" class="remove-item-btn action-button" title="Supprimer"><i class="fas fa-times"></i></button>
+                `;
+                itemsContainer.appendChild(itemRow);
+            });
+        }
 
-        requestForm.addEventListener('submit', async function(event) { /* ... (logique de soumission inchangée) ... */ });
+        if (itemsContainer) {
+            itemsContainer.addEventListener('click', (e) => {
+                if (e.target.closest('.remove-item-btn')) {
+                    e.target.closest('.item-row').remove();
+                }
+            });
+        }
+
+        if (fileUpload) {
+            fileUpload.addEventListener('change', (e) => {
+                uploadedFiles = Array.from(e.target.files);
+                if (fileListDisplay) {
+                    fileListDisplay.innerHTML = uploadedFiles.length > 0 ?
+                        '<ul>' + uploadedFiles.map(f => `<li>${f.name}</li>`).join('') + '</ul>' :
+                        '<span>Aucun fichier sélectionné.</span>';
+                }
+            });
+        }
+
+        // --- C'est ici que la magie opère ---
+        requestForm.addEventListener('submit', async function(event) {
+            event.preventDefault(); // Empêche le rechargement de la page
+
+            // 1. Récupérer l'ID de la demande. S'il est vide, c'est une création.
+            const demandeId = demandeIdHiddenInput.value;
+            const isUpdate = !!demandeId; // Vrai si on modifie, faux si on crée
+
+            // 2. Préparer les données de la demande (DTO)
+            const articles = [];
+            itemsContainer.querySelectorAll('.item-row').forEach(row => {
+                articles.push({
+                    nomArticle: row.querySelector('.item-name').value,
+                    description: row.querySelector('.item-specs').value,
+                    quantite: parseInt(row.querySelector('.item-quantity').value, 10),
+                    unite: 'unité' // À adapter si nécessaire
+                });
+            });
+
+            const demandeData = {
+                utilisateurId: utilisateurIdConnecte,
+                commentaire: document.getElementById('requestDescription').value,
+                articles: articles
+            };
+
+            // 3. Utiliser FormData pour envoyer les données et les fichiers
+            const formData = new FormData();
+            formData.append('demande', new Blob([JSON.stringify(demandeData)], { type: 'application/json' }));
+
+            uploadedFiles.forEach(file => {
+                formData.append('files', file);
+            });
+
+            // 4. Définir la méthode et l'URL en fonction du contexte (création ou mise à jour)
+            let url = '/api/demandes';
+            let method = 'POST';
+
+            if (isUpdate) {
+                url = `/api/demandes/${demandeId}`;
+                method = 'PUT';
+            }
+
+            // 5. Envoyer la requête au backend
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    body: formData, // Pas de 'Content-Type' ici, le navigateur le mettra automatiquement avec la bonne délimitation pour multipart/form-data
+                });
+
+                if (response.ok) {
+                    const actionText = isUpdate ? 'modifiée' : 'créée';
+                    alert(`Demande ${actionText} avec succès !`);
+
+                    // Recharger la liste des demandes et réinitialiser le formulaire
+                    chargerEtAfficherDemandesUtilisateur(utilisateurIdConnecte);
+                    requestForm.reset();
+                    if(itemsContainer) itemsContainer.innerHTML = '';
+                    if(fileListDisplay) fileListDisplay.innerHTML = '<span>Aucun fichier sélectionné.</span>';
+                    uploadedFiles = [];
+                    demandeIdHiddenInput.value = ''; // Important: vider l'ID après la soumission
+                    document.querySelector('.sidebar a[href="#dashboard"]').click(); // Revenir au tableau de bord
+                } else {
+                    const errorText = await response.text();
+                    throw new Error(`Erreur ${response.status}: ${errorText}`);
+                }
+            } catch (error) {
+                console.error('Erreur lors de la soumission de la demande:', error);
+                alert('Une erreur est survenue. Veuillez vérifier la console.');
+            }
+        });
     }
 
     // --- Initialisation ---

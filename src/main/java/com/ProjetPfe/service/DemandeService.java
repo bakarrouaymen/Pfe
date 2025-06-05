@@ -210,6 +210,45 @@ public class DemandeService {
         demandeRepository.deleteById(id);
         System.out.println("Demande ID " + id + " supprimée avec succès.");
     }
+    @Transactional
+    public DemandeResponseDto approuverDemande(Long id) {
+        // 1. Récupérer la demande depuis la base de données
+        Demande demande = demandeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Demande non trouvée avec ID: " + id));
+
+        // 2. Vérifier si la demande est bien "EN ATTENTE"
+        if (demande.getStatut() != StatutDemande.EN_ATTENTE) {
+            throw new IllegalStateException("Impossible d'approuver la demande. Statut actuel : " +
+                    demande.getStatut() + ". L'approbation est autorisée uniquement pour le statut EN_ATTENTE.");
+        }
+
+        // 3. Changer le statut
+        demande.setStatut(StatutDemande.APPROUVEE);
+
+        // 4. Sauvegarder les changements et retourner le DTO mis à jour
+        Demande updatedDemande = demandeRepository.save(demande);
+        return new DemandeResponseDto(updatedDemande);
+    }
+
+    @Transactional
+    public DemandeResponseDto rejeterDemande(Long id) {
+        // 1. Récupérer la demande
+        Demande demande = demandeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Demande non trouvée avec ID: " + id));
+
+        // 2. Vérifier si la demande est "EN ATTENTE"
+        if (demande.getStatut() != StatutDemande.EN_ATTENTE) {
+            throw new IllegalStateException("Impossible de rejeter la demande. Statut actuel : " +
+                    demande.getStatut() + ". Le rejet est autorisé uniquement pour le statut EN_ATTENTE.");
+        }
+
+        // 3. Changer le statut
+        demande.setStatut(StatutDemande.REJETEE);
+
+        // 4. Sauvegarder et retourner le DTO
+        Demande updatedDemande = demandeRepository.save(demande);
+        return new DemandeResponseDto(updatedDemande);
+    }
 
     public Optional<FichierJoint> getFichierJointById(Long fichierId) {
         return fichierJointRepository.findById(fichierId);

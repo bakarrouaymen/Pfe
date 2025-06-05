@@ -107,6 +107,39 @@ public class DemandeController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    @PutMapping("/{id}/approuver")
+    public ResponseEntity<DemandeResponseDto> approuverDemande(@PathVariable Long id) {
+        try {
+            DemandeResponseDto demandeApprouvee = demandeService.approuverDemande(id);
+            return new ResponseEntity<>(demandeApprouvee, HttpStatus.OK);
+        } catch (IllegalStateException e) {
+            // Conflit : la demande n'est pas dans le bon état pour être approuvée
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        } catch (RuntimeException e) {
+            // Non trouvé : la demande avec cet ID n'existe pas
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PutMapping("/{id}/rejeter")
+    public ResponseEntity<DemandeResponseDto> rejeterDemande(@PathVariable Long id) {
+        try {
+            DemandeResponseDto demandeRejetee = demandeService.rejeterDemande(id);
+            return new ResponseEntity<>(demandeRejetee, HttpStatus.OK);
+        } catch (IllegalStateException e) {
+            // Conflit : la demande n'est pas dans le bon état pour être rejetée
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        } catch (RuntimeException e) {
+            // Non trouvé : la demande avec cet ID n'existe pas
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     @PutMapping("/{id}/annuler")
     public ResponseEntity<DemandeResponseDto> cancelDemande(@PathVariable Long id) {
