@@ -7,5 +7,6 @@ public enum StatutDemande {
     REJETEE,
     ANNULEE, // CONSTANTE REQUISE
     EN_COURS,
-    TERMINEE
+    TERMINEE,
+    RETOURNEE
 }

@@ -107,16 +107,18 @@ public class DemandeController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    // Dans DemandeController.java
+
     @PutMapping("/{id}/approuver")
     public ResponseEntity<DemandeResponseDto> approuverDemande(@PathVariable Long id) {
         try {
+            // Note: Le corps de la requête du JS est ignoré ici pour l'instant.
+            // La logique d'ajout de commentaire pourra être ajoutée dans le service plus tard.
             DemandeResponseDto demandeApprouvee = demandeService.approuverDemande(id);
             return new ResponseEntity<>(demandeApprouvee, HttpStatus.OK);
         } catch (IllegalStateException e) {
-            // Conflit : la demande n'est pas dans le bon état pour être approuvée
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         } catch (RuntimeException e) {
-            // Non trouvé : la demande avec cet ID n'existe pas
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -127,10 +129,30 @@ public class DemandeController {
     @PutMapping("/{id}/rejeter")
     public ResponseEntity<DemandeResponseDto> rejeterDemande(@PathVariable Long id) {
         try {
+            // Note: Le corps de la requête du JS est ignoré ici pour l'instant.
             DemandeResponseDto demandeRejetee = demandeService.rejeterDemande(id);
             return new ResponseEntity<>(demandeRejetee, HttpStatus.OK);
         } catch (IllegalStateException e) {
-            // Conflit : la demande n'est pas dans le bon état pour être rejetée
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    // Assurez-vous que cette méthode est bien DANS la classe DemandeController
+
+    @PutMapping("/{id}/retourner")
+    public ResponseEntity<DemandeResponseDto> retournerDemande(@PathVariable Long id, @RequestBody String commentaire) {
+        try {
+            DemandeResponseDto demandeRetournee = demandeService.retournerDemande(id, commentaire);
+            return new ResponseEntity<>(demandeRetournee, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            // Requête incorrecte : le commentaire est manquant
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (IllegalStateException e) {
+            // Conflit : la demande n'est pas dans le bon état
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         } catch (RuntimeException e) {
             // Non trouvé : la demande avec cet ID n'existe pas

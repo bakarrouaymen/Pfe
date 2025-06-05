@@ -248,6 +248,35 @@ public class DemandeService {
         // 4. Sauvegarder et retourner le DTO
         Demande updatedDemande = demandeRepository.save(demande);
         return new DemandeResponseDto(updatedDemande);
+    } @Transactional
+    public DemandeResponseDto retournerDemande(Long id, String commentaireRetour) {
+        // 1. Récupérer la demande
+        Demande demande = demandeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Demande non trouvée avec ID: " + id));
+
+        // 2. Vérifier si la demande est "EN ATTENTE"
+        if (demande.getStatut() != StatutDemande.EN_ATTENTE) {
+            throw new IllegalStateException("Impossible de retourner la demande. Statut actuel : " +
+                    demande.getStatut() + ". Le retour est autorisé uniquement pour le statut EN_ATTENTE.");
+        }
+
+        // 3. Valider que le commentaire de retour n'est pas vide
+        if (commentaireRetour == null || commentaireRetour.trim().isEmpty()) {
+            throw new IllegalArgumentException("Un commentaire est requis pour retourner une demande.");
+        }
+
+        // 4. Changer le statut
+        demande.setStatut(StatutDemande.RETOURNEE);
+
+        // 5. Ajouter le commentaire de retour au commentaire existant pour garder un historique
+        String dateRetour = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date());
+        String nouveauCommentaire = String.format("\n--- RETOURNÉE LE %s ---\n%s", dateRetour, commentaireRetour);
+
+        demande.setCommentaire(demande.getCommentaire() + nouveauCommentaire);
+
+        // 6. Sauvegarder et retourner le DTO
+        Demande updatedDemande = demandeRepository.save(demande);
+        return new DemandeResponseDto(updatedDemande);
     }
 
     public Optional<FichierJoint> getFichierJointById(Long fichierId) {
